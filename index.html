@@ -1,230 +1,675 @@
-import json
-import re
-import sys
-import tkinter as tk
-from datetime import datetime
-from pathlib import Path
-from tkinter import Tk, simpledialog, messagebox
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Office Attendance Dashboard</title>
 
-import certifi
-import requests
-
-try:
-    import truststore
-    truststore.inject_into_ssl()
-except Exception:
-    pass
-
-
-FIREBASE_DB_URL = "https://office-attendance-bfc67-default-rtdb.firebaseio.com"
-
-APP_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
-CONFIG_FILE = APP_DIR / "config.json"
-
-
-def clean_key(text):
-    return re.sub(r"[^a-zA-Z0-9_-]", "_", text.strip())
-
-
-def today_text():
-    return datetime.now().strftime("%Y-%m-%d")
-
-
-def is_weekday():
-    return datetime.now().weekday() < 5
-
-
-def load_name(root):
-    if CONFIG_FILE.exists():
-        with open(CONFIG_FILE, "r", encoding="utf-8") as file:
-            data = json.load(file)
-            if data.get("name"):
-                return data["name"]
-
-    name = simpledialog.askstring("Office Attendance", "Enter your name:", parent=root)
-
-    if not name:
-        sys.exit()
-
-    name = name.strip()
-
-    with open(CONFIG_FILE, "w", encoding="utf-8") as file:
-        json.dump({"name": name}, file, indent=2)
-
-    return name
-
-
-def record_attendance(name, working_from):
-    today = today_text()
-    safe_name = clean_key(name)
-
-    url = f"{FIREBASE_DB_URL}/attendance/{today}/{safe_name}.json"
-
-    payload = {
-        "name": name,
-        "inOffice": working_from in ["GC", "BNE"],
-        "workingFrom": working_from,
-        "date": today,
-        "recordedAt": datetime.now().isoformat(timespec="seconds")
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --panel: rgba(255,255,255,0.78);
+      --text: #111827;
+      --muted: #6b7280;
+      --line: rgba(17,24,39,0.08);
+      --blue: #2563eb;
+      --blue-soft: #dbeafe;
+      --green: #16a34a;
+      --green-soft: #dcfce7;
+      --shadow: 0 24px 70px rgba(15,23,42,0.10);
+      --radius: 24px;
     }
 
-    response = requests.put(url, json=payload, timeout=10, verify=certifi.where())
-    response.raise_for_status()
+    * { box-sizing: border-box; }
 
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,0.16), transparent 35%),
+        radial-gradient(circle at top right, rgba(22,163,74,0.12), transparent 28%),
+        linear-gradient(180deg, #fff 0%, var(--bg) 44%, #eef2ff 100%);
+    }
 
-def get_monitor_bounds(root):
-    try:
-        import ctypes
+    .shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 42px;
+    }
 
-        monitors = []
+    .topbar, .hero, .grid {
+      display: grid;
+      gap: 18px;
+    }
 
-        monitor_enum_proc = ctypes.WINFUNCTYPE(
-            ctypes.c_int,
-            ctypes.c_ulong,
-            ctypes.c_ulong,
-            ctypes.POINTER(ctypes.c_long * 4),
-            ctypes.c_double
-        )
+    .topbar {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      margin-bottom: 34px;
+    }
 
-        def callback(hmonitor, hdc, rect, data):
-            left, top, right, bottom = rect.contents
-            monitors.append((left, top, right - left, bottom - top))
-            return 1
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-        ctypes.windll.user32.EnumDisplayMonitors(
-            0,
-            0,
-            monitor_enum_proc(callback),
-            0
-        )
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #2563eb, #60a5fa);
+      box-shadow: 0 14px 32px rgba(37,99,235,0.25);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 800;
+    }
 
-        if monitors:
-            return monitors
+    h1, h2, h3, p { margin: 0; }
 
-    except Exception:
-        pass
+    .brand h1 {
+      font-size: 18px;
+      letter-spacing: -0.03em;
+    }
 
-    return [(0, 0, root.winfo_screenwidth(), root.winfo_screenheight())]
+    .brand p, .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
 
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
 
-def show_fade_message(root, text):
-    monitors = get_monitor_bounds(root)
-    popups = []
+    input, button { font: inherit; }
 
-    for monitor_x, monitor_y, monitor_w, monitor_h in monitors:
-        popup = tk.Toplevel(root)
-        popup.overrideredirect(True)
-        popup.attributes("-topmost", True)
-        popup.attributes("-alpha", 0.9)
+    .date-input, .btn {
+      border-radius: 14px;
+      padding: 11px 13px;
+    }
 
-        width = 280
-        height = 72
+    .date-input {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.75);
+      outline: none;
+    }
 
-        x = monitor_x + monitor_w - width - 30
-        y = monitor_y + monitor_h - height - 80
+    .btn {
+      border: 0;
+      background: #111827;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 14px 32px rgba(17,24,39,0.16);
+    }
 
-        popup.geometry(f"{width}x{height}+{x}+{y}")
-        popup.configure(bg="#222222")
+    .btn.secondary {
+      color: var(--text);
+      background: rgba(255,255,255,0.76);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
 
-        label = tk.Label(
-            popup,
-            text=text,
-            fg="white",
-            bg="#222222",
-            font=("Segoe UI", 13)
-        )
-        label.pack(expand=True, fill="both")
+    .hero {
+      grid-template-columns: 1.35fr 0.65fr;
+      margin-bottom: 18px;
+    }
 
-        popups.append(popup)
+    .card {
+      background: var(--panel);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.78);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
 
-    def fade(alpha=0.9):
-        alpha -= 0.05
+    .hero-main {
+      padding: 34px;
+      position: relative;
+      overflow: hidden;
+    }
 
-        if alpha <= 0:
-            for popup in popups:
-                try:
-                    popup.destroy()
-                except Exception:
-                    pass
-            root.destroy()
-            return
+    .hero-main::after {
+      content: "";
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 999px;
+      background: rgba(37,99,235,0.10);
+      right: -80px;
+      top: -100px;
+    }
 
-        for popup in popups:
-            try:
-                popup.attributes("-alpha", alpha)
-            except Exception:
-                pass
+    .eyebrow {
+      display: inline-flex;
+      color: #1d4ed8;
+      background: var(--blue-soft);
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
 
-        root.after(80, fade, alpha)
+    .hero-main h2 {
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: 0.95;
+      letter-spacing: -0.07em;
+      max-width: 720px;
+    }
 
-    root.after(900, fade)
+    .hero-main p {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+      max-width: 640px;
+    }
 
+    .stat-card {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 230px;
+    }
 
-def ask_working_from(root, name):
-    selected = {"value": None}
+    .number {
+      font-size: 72px;
+      line-height: 1;
+      letter-spacing: -0.08em;
+      font-weight: 850;
+    }
 
-    popup = tk.Toplevel(root)
-    popup.title("Office Attendance")
-    popup.resizable(False, False)
-    popup.attributes("-topmost", True)
+    .status-pill {
+      align-self: flex-start;
+      color: var(--green);
+      background: var(--green-soft);
+      padding: 8px 11px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+    }
 
-    width = 330
-    height = 180
-    x = int((popup.winfo_screenwidth() - width) / 2)
-    y = int((popup.winfo_screenheight() - height) / 2)
-    popup.geometry(f"{width}x{height}+{x}+{y}")
+    .grid {
+      grid-template-columns: 1fr 1fr;
+    }
 
-    tk.Label(
-        popup,
-        text=f"Hi {name}, working from?",
-        font=("Segoe UI", 12)
-    ).pack(pady=(24, 16))
+    .panel {
+      padding: 22px;
+    }
 
-    button_frame = tk.Frame(popup)
-    button_frame.pack(pady=8)
+    .wide {
+      grid-column: 1 / -1;
+    }
 
-    def choose(value):
-        selected["value"] = value
-        popup.destroy()
+    .panel-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
 
-    for option in ["Home", "GC", "BNE"]:
-        tk.Button(
-            button_frame,
-            text=option,
-            width=8,
-            command=lambda value=option: choose(value)
-        ).pack(side="left", padx=6)
+    .panel-title h3 {
+      font-size: 17px;
+      letter-spacing: -0.03em;
+    }
 
-    popup.protocol("WM_DELETE_WINDOW", popup.destroy)
-    root.wait_window(popup)
+    .chart {
+      height: 280px;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+    }
 
-    return selected["value"]
+    .line-chart {
+      width: 100%;
+      height: 100%;
+    }
 
+    .chart-legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
 
-def main():
-    root = Tk()
-    root.withdraw()
-    root.update_idletasks()
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-    if not is_weekday():
-        root.destroy()
-        return
+    .legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+    }
 
-    name = load_name(root)
-    working_from = ask_working_from(root, name)
+    .dot-home { background: #64748b; }
+    .dot-gc { background: #2563eb; }
+    .dot-bne { background: #16a34a; }
 
-    if not working_from:
-        root.destroy()
-        return
+    .axis-label {
+      fill: #6b7280;
+      font-size: 11px;
+      font-weight: 700;
+    }
 
-    try:
-        record_attendance(name, working_from)
-        show_fade_message(root, f"Attendance recorded: {working_from}")
-        root.mainloop()
-    except Exception as error:
-        messagebox.showerror("Error", f"Could not record attendance:\n\n{error}", parent=root)
-        root.destroy()
+    .grid-line {
+      stroke: rgba(17,24,39,0.08);
+      stroke-width: 1;
+    }
 
+    .line-home {
+      fill: none;
+      stroke: #64748b;
+      stroke-width: 3;
+    }
 
-if __name__ == "__main__":
-    main()
+    .line-gc {
+      fill: none;
+      stroke: #2563eb;
+      stroke-width: 3;
+    }
+
+    .line-bne {
+      fill: none;
+      stroke: #16a34a;
+      stroke-width: 3;
+    }
+
+    .point-home { fill: #64748b; }
+    .point-gc { fill: #2563eb; }
+    .point-bne { fill: #16a34a; }
+
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .mini {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid var(--line);
+    }
+
+    .mini strong {
+      display: block;
+      font-size: 24px;
+      letter-spacing: -0.05em;
+    }
+
+    .mini span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 28px;
+      text-align: center;
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.5);
+    }
+
+    @media (max-width: 850px) {
+      .topbar, .hero, .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        justify-content: flex-start;
+      }
+
+      .summary-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">OA</div>
+        <div>
+          <h1>Office Attendance</h1>
+          <p>Private attendance totals dashboard</p>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input id="datePicker" class="date-input" type="date" />
+        <button class="btn secondary" onclick="setToday()">Today</button>
+        <button class="btn" onclick="loadDashboard()">Refresh</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="card hero-main">
+        <div class="eyebrow">● Live office view</div>
+        <h2>Attendance trends without showing names.</h2>
+        <p>Reads from Firebase Realtime Database and displays weekday Home, Gold Coast and Brisbane totals only.</p>
+      </div>
+
+      <div class="card stat-card">
+        <div class="status-pill" id="statusPill">Connected</div>
+        <div>
+          <div class="number" id="todayCount">0</div>
+          <div class="muted">people recorded for selected day</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card panel">
+        <div class="panel-title">
+          <h3>Weekday view</h3>
+          <span class="muted" id="dailyLabel"></span>
+        </div>
+        <div id="dailyChart" class="chart"></div>
+      </div>
+
+      <div class="card panel">
+        <div class="panel-title">
+          <h3>Weekly trend</h3>
+          <span class="muted">Last 8 weeks</span>
+        </div>
+        <div id="weeklyChart" class="chart"></div>
+      </div>
+
+      <div class="card panel wide">
+        <div class="panel-title">
+          <h3>Summary</h3>
+          <span class="muted">Totals only</span>
+        </div>
+
+        <div class="summary-strip">
+          <div class="mini">
+            <strong id="selectedTotal">0</strong>
+            <span>Selected day</span>
+          </div>
+          <div class="mini">
+            <strong id="weekTotal">0</strong>
+            <span>This week</span>
+          </div>
+          <div class="mini">
+            <strong id="weekAverage">0</strong>
+            <span>Weekday average</span>
+          </div>
+          <div class="mini">
+            <strong id="bestDay">-</strong>
+            <span>Highest weekday</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const FIREBASE_DB_URL = "https://office-attendance-bfc67-default-rtdb.firebaseio.com";
+
+    const datePicker = document.getElementById("datePicker");
+    const todayCount = document.getElementById("todayCount");
+    const statusPill = document.getElementById("statusPill");
+    const dailyChart = document.getElementById("dailyChart");
+    const weeklyChart = document.getElementById("weeklyChart");
+    const dailyLabel = document.getElementById("dailyLabel");
+
+    const selectedTotal = document.getElementById("selectedTotal");
+    const weekTotal = document.getElementById("weekTotal");
+    const weekAverage = document.getElementById("weekAverage");
+    const bestDay = document.getElementById("bestDay");
+
+    let allAttendance = null;
+
+    function localDateString(date = new Date()) {
+      const offset = date.getTimezoneOffset();
+      const local = new Date(date.getTime() - offset * 60000);
+      return local.toISOString().slice(0, 10);
+    }
+
+    function addDays(date, days) {
+      const copy = new Date(date);
+      copy.setDate(copy.getDate() + days);
+      return copy;
+    }
+
+    function startOfWeek(date) {
+      const copy = new Date(date);
+      const day = copy.getDay();
+      const mondayOffset = day === 0 ? -6 : 1 - day;
+      copy.setDate(copy.getDate() + mondayOffset);
+      copy.setHours(0, 0, 0, 0);
+      return copy;
+    }
+
+    function isWeekday(date) {
+      const day = date.getDay();
+      return day >= 1 && day <= 5;
+    }
+
+    async function fetchAllAttendance() {
+      const response = await fetch(`${FIREBASE_DB_URL}/attendance.json`);
+      if (!response.ok) throw new Error(`Firebase read failed: ${response.status}`);
+      allAttendance = await response.json() || {};
+    }
+
+    function getLocationCounts(dateText) {
+      const dayData = allAttendance?.[dateText] || {};
+      const counts = { Home: 0, GC: 0, BNE: 0 };
+
+      Object.values(dayData).forEach(item => {
+        if (!item) return;
+
+        const location = item.workingFrom || (item.inOffice ? "GC" : "Home");
+
+        if (location === "Home") counts.Home += 1;
+        if (location === "GC") counts.GC += 1;
+        if (location === "BNE") counts.BNE += 1;
+      });
+
+      return counts;
+    }
+
+    function getTotal(counts) {
+      return counts.Home + counts.GC + counts.BNE;
+    }
+
+    function renderLineChart(container, data, xKey) {
+      const width = 760;
+      const height = 250;
+      const padding = { left: 36, right: 18, top: 18, bottom: 34 };
+
+      const plotW = width - padding.left - padding.right;
+      const plotH = height - padding.top - padding.bottom;
+      const seriesKeys = ["Home", "GC", "BNE"];
+
+      const maxValue = Math.max(
+        1,
+        ...data.flatMap(item => seriesKeys.map(key => item[key]))
+      );
+
+      const x = index => {
+        if (data.length === 1) return padding.left + plotW / 2;
+        return padding.left + (index / (data.length - 1)) * plotW;
+      };
+
+      const y = value => padding.top + plotH - (value / maxValue) * plotH;
+
+      function pathFor(key) {
+        return data.map((item, index) => {
+          const command = index === 0 ? "M" : "L";
+          return `${command} ${x(index)} ${y(item[key])}`;
+        }).join(" ");
+      }
+
+      function pointsFor(key, className) {
+        return data.map((item, index) => `
+          <circle class="${className}" cx="${x(index)}" cy="${y(item[key])}" r="4">
+            <title>${item[xKey]} - ${key}: ${item[key]}</title>
+          </circle>
+        `).join("");
+      }
+
+      if (!data.length) {
+        container.innerHTML = `<div class="empty">No weekday data available.</div>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot dot-home"></span>Home</span>
+          <span class="legend-item"><span class="legend-dot dot-gc"></span>GC</span>
+          <span class="legend-item"><span class="legend-dot dot-bne"></span>BNE</span>
+        </div>
+
+        <svg class="line-chart" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+          <line class="grid-line" x1="${padding.left}" y1="${y(0)}" x2="${width - padding.right}" y2="${y(0)}"></line>
+          <line class="grid-line" x1="${padding.left}" y1="${y(maxValue / 2)}" x2="${width - padding.right}" y2="${y(maxValue / 2)}"></line>
+          <line class="grid-line" x1="${padding.left}" y1="${y(maxValue)}" x2="${width - padding.right}" y2="${y(maxValue)}"></line>
+
+          <text class="axis-label" x="4" y="${y(maxValue)}">${Math.ceil(maxValue)}</text>
+          <text class="axis-label" x="4" y="${y(maxValue / 2)}">${Math.round(maxValue / 2)}</text>
+          <text class="axis-label" x="4" y="${y(0)}">0</text>
+
+          <path class="line-home" d="${pathFor("Home")}"></path>
+          <path class="line-gc" d="${pathFor("GC")}"></path>
+          <path class="line-bne" d="${pathFor("BNE")}"></path>
+
+          ${pointsFor("Home", "point-home")}
+          ${pointsFor("GC", "point-gc")}
+          ${pointsFor("BNE", "point-bne")}
+
+          ${data.map((item, index) => `
+            <text class="axis-label" x="${x(index)}" y="${height - 8}" text-anchor="middle">${item[xKey]}</text>
+          `).join("")}
+        </svg>
+      `;
+    }
+
+    async function loadDashboard() {
+      const selectedDate = datePicker.value || localDateString();
+      const selectedBase = new Date(selectedDate + "T00:00:00");
+      const weekStart = startOfWeek(selectedBase);
+
+      statusPill.textContent = "Loading...";
+      statusPill.style.color = "#1d4ed8";
+      statusPill.style.background = "#dbeafe";
+
+      try {
+        await fetchAllAttendance();
+
+        const dailyData = [];
+
+        for (let i = 0; i < 7; i++) {
+          const date = addDays(weekStart, i);
+          if (!isWeekday(date)) continue;
+
+          const key = localDateString(date);
+          const counts = getLocationCounts(key);
+
+          dailyData.push({
+            label: date.toLocaleDateString("en-AU", { weekday: "short" }),
+            key,
+            Home: counts.Home,
+            GC: counts.GC,
+            BNE: counts.BNE
+          });
+        }
+
+        const weeklyData = [];
+
+        for (let i = 7; i >= 0; i--) {
+          const week = addDays(weekStart, -7 * i);
+          const totals = { Home: 0, GC: 0, BNE: 0 };
+
+          for (let d = 0; d < 7; d++) {
+            const date = addDays(week, d);
+            if (!isWeekday(date)) continue;
+
+            const counts = getLocationCounts(localDateString(date));
+            totals.Home += counts.Home;
+            totals.GC += counts.GC;
+            totals.BNE += counts.BNE;
+          }
+
+          weeklyData.push({
+            label: `W${getWeekNumber(week)}`,
+            Home: totals.Home,
+            GC: totals.GC,
+            BNE: totals.BNE
+          });
+        }
+
+        const selectedCounts = getLocationCounts(selectedDate);
+        const selectedDayCount = getTotal(selectedCounts);
+
+        const currentWeekTotal = dailyData.reduce((sum, item) => {
+          return sum + item.Home + item.GC + item.BNE;
+        }, 0);
+
+        const highest = dailyData.reduce((best, item) => {
+          const itemTotal = item.Home + item.GC + item.BNE;
+          const bestTotal = best.Home + best.GC + best.BNE;
+          return itemTotal > bestTotal ? item : best;
+        }, dailyData[0]);
+
+        todayCount.textContent = selectedDayCount;
+        selectedTotal.textContent = selectedDayCount;
+        weekTotal.textContent = currentWeekTotal;
+        weekAverage.textContent = (currentWeekTotal / 5).toFixed(1);
+        bestDay.textContent = `${highest.label} (${highest.Home + highest.GC + highest.BNE})`;
+
+        dailyLabel.textContent = `Week of ${weekStart.toLocaleDateString("en-AU", { day: "numeric", month: "short" })}`;
+
+        renderLineChart(dailyChart, dailyData, "label");
+        renderLineChart(weeklyChart, weeklyData, "label");
+
+        statusPill.textContent = "Connected";
+        statusPill.style.color = "#16a34a";
+        statusPill.style.background = "#dcfce7";
+      } catch (error) {
+        console.error(error);
+
+        dailyChart.innerHTML = `<div class="empty">Could not load Firebase data.</div>`;
+        weeklyChart.innerHTML = `<div class="empty">Could not load Firebase data.</div>`;
+
+        statusPill.textContent = "Error";
+        statusPill.style.color = "#dc2626";
+        statusPill.style.background = "#fee2e2";
+      }
+    }
+
+    function getWeekNumber(date) {
+      const target = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const dayNum = target.getUTCDay() || 7;
+      target.setUTCDate(target.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(target.getUTCFullYear(), 0, 1));
+      return Math.ceil((((target - yearStart) / 86400000) + 1) / 7);
+    }
+
+    function setToday() {
+      datePicker.value = localDateString();
+      loadDashboard();
+    }
+
+    datePicker.value = localDateString();
+    loadDashboard();
+  </script>
+</body>
+</html>
