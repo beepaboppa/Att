@@ -8,22 +8,19 @@
   <style>
     :root {
       --bg: #f6f7fb;
-      --panel: rgba(255, 255, 255, 0.78);
-      --panel-solid: #ffffff;
+      --panel: rgba(255,255,255,0.78);
       --text: #111827;
       --muted: #6b7280;
-      --line: rgba(17, 24, 39, 0.08);
-      --accent: #2563eb;
-      --accent-soft: #dbeafe;
+      --line: rgba(17,24,39,0.08);
+      --blue: #2563eb;
+      --blue-soft: #dbeafe;
       --green: #16a34a;
       --green-soft: #dcfce7;
-      --shadow: 0 24px 70px rgba(15, 23, 42, 0.10);
+      --shadow: 0 24px 70px rgba(15,23,42,0.10);
       --radius: 24px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -31,9 +28,9 @@
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 35%),
-        radial-gradient(circle at top right, rgba(22, 163, 74, 0.12), transparent 28%),
-        linear-gradient(180deg, #ffffff 0%, var(--bg) 44%, #eef2ff 100%);
+        radial-gradient(circle at top left, rgba(37,99,235,0.16), transparent 35%),
+        radial-gradient(circle at top right, rgba(22,163,74,0.12), transparent 28%),
+        linear-gradient(180deg, #fff 0%, var(--bg) 44%, #eef2ff 100%);
     }
 
     .shell {
@@ -42,11 +39,14 @@
       padding: 28px 0 42px;
     }
 
+    .topbar, .hero, .grid {
+      display: grid;
+      gap: 18px;
+    }
+
     .topbar {
-      display: flex;
-      justify-content: space-between;
+      grid-template-columns: 1fr auto;
       align-items: center;
-      gap: 16px;
       margin-bottom: 34px;
     }
 
@@ -61,21 +61,21 @@
       height: 42px;
       border-radius: 14px;
       background: linear-gradient(135deg, #2563eb, #60a5fa);
-      box-shadow: 0 14px 32px rgba(37, 99, 235, 0.25);
+      box-shadow: 0 14px 32px rgba(37,99,235,0.25);
       display: grid;
       place-items: center;
       color: white;
       font-weight: 800;
     }
 
+    h1, h2, h3, p { margin: 0; }
+
     .brand h1 {
-      margin: 0;
       font-size: 18px;
       letter-spacing: -0.03em;
     }
 
-    .brand p {
-      margin: 2px 0 0;
+    .brand p, .muted {
       color: var(--muted);
       font-size: 13px;
     }
@@ -83,34 +83,27 @@
     .toolbar {
       display: flex;
       gap: 10px;
-      align-items: center;
       flex-wrap: wrap;
       justify-content: flex-end;
     }
 
-    input, button {
-      font: inherit;
+    input, button { font: inherit; }
+
+    .date-input, .btn {
+      border-radius: 14px;
+      padding: 11px 13px;
     }
 
-    .date-input, .search {
+    .date-input {
       border: 1px solid var(--line);
       background: rgba(255,255,255,0.75);
-      padding: 11px 13px;
-      border-radius: 14px;
       outline: none;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
-    }
-
-    .search {
-      width: 210px;
     }
 
     .btn {
       border: 0;
       background: #111827;
       color: white;
-      padding: 11px 15px;
-      border-radius: 14px;
       cursor: pointer;
       box-shadow: 0 14px 32px rgba(17,24,39,0.16);
     }
@@ -123,9 +116,7 @@
     }
 
     .hero {
-      display: grid;
-      grid-template-columns: 1.4fr 0.6fr;
-      gap: 18px;
+      grid-template-columns: 1.35fr 0.65fr;
       margin-bottom: 18px;
     }
 
@@ -139,8 +130,8 @@
 
     .hero-main {
       padding: 34px;
-      overflow: hidden;
       position: relative;
+      overflow: hidden;
     }
 
     .hero-main::after {
@@ -149,38 +140,35 @@
       width: 280px;
       height: 280px;
       border-radius: 999px;
-      background: rgba(37, 99, 235, 0.10);
+      background: rgba(37,99,235,0.10);
       right: -80px;
       top: -100px;
     }
 
     .eyebrow {
       display: inline-flex;
-      align-items: center;
-      gap: 8px;
       color: #1d4ed8;
-      background: var(--accent-soft);
-      border: 1px solid rgba(37,99,235,0.14);
+      background: var(--blue-soft);
       padding: 7px 11px;
       border-radius: 999px;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
       margin-bottom: 16px;
     }
 
     .hero-main h2 {
-      margin: 0;
       font-size: clamp(34px, 5vw, 62px);
       line-height: 0.95;
       letter-spacing: -0.07em;
+      max-width: 720px;
     }
 
     .hero-main p {
-      max-width: 640px;
-      margin: 18px 0 0;
+      margin-top: 18px;
       color: var(--muted);
       font-size: 16px;
       line-height: 1.6;
+      max-width: 640px;
     }
 
     .stat-card {
@@ -191,17 +179,11 @@
       min-height: 230px;
     }
 
-    .stat-card .number {
-      font-size: 64px;
+    .number {
+      font-size: 72px;
       line-height: 1;
       letter-spacing: -0.08em;
-      font-weight: 800;
-    }
-
-    .stat-card .label {
-      color: var(--muted);
-      font-size: 14px;
-      margin-top: 8px;
+      font-weight: 850;
     }
 
     .status-pill {
@@ -211,140 +193,104 @@
       padding: 8px 11px;
       border-radius: 999px;
       font-size: 13px;
-      font-weight: 750;
+      font-weight: 800;
     }
 
     .grid {
-      display: grid;
-      grid-template-columns: 0.8fr 1.2fr;
-      gap: 18px;
+      grid-template-columns: 1fr 1fr;
     }
 
     .panel {
-      padding: 20px;
+      padding: 22px;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
     }
 
     .panel-title {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: baseline;
       gap: 12px;
-      margin-bottom: 14px;
+      margin-bottom: 20px;
     }
 
     .panel-title h3 {
-      margin: 0;
       font-size: 17px;
       letter-spacing: -0.03em;
     }
 
-    .panel-title span {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .attendee-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .person {
+    .chart {
+      height: 260px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      align-items: end;
       gap: 12px;
-      padding: 14px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.78);
-      border: 1px solid var(--line);
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
     }
 
-    .avatar {
-      width: 38px;
-      height: 38px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #111827, #334155);
-      color: white;
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      flex: 0 0 auto;
-    }
-
-    .person-main {
+    .bar-wrap {
+      flex: 1;
+      height: 100%;
       display: flex;
+      flex-direction: column;
+      justify-content: end;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       min-width: 0;
     }
 
-    .person-name {
-      font-weight: 750;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .bar {
+      width: 100%;
+      max-width: 54px;
+      min-height: 4px;
+      border-radius: 12px 12px 6px 6px;
+      background: linear-gradient(180deg, #2563eb, #93c5fd);
+      box-shadow: 0 12px 26px rgba(37,99,235,0.22);
+      position: relative;
     }
 
-    .person-time {
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 2px;
-    }
-
-    .badge {
-      color: var(--green);
-      background: var(--green-soft);
-      border: 1px solid rgba(22,163,74,0.12);
-      padding: 7px 10px;
-      border-radius: 999px;
+    .bar span {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
       font-size: 12px;
       font-weight: 800;
+      color: var(--text);
+    }
+
+    .x-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
       white-space: nowrap;
     }
 
-    .calendar {
+    .summary-strip {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 18px;
     }
 
-    .day {
-      min-height: 96px;
-      padding: 12px;
+    .mini {
+      padding: 16px;
       border-radius: 18px;
       background: rgba(255,255,255,0.72);
       border: 1px solid var(--line);
     }
 
-    .day.today {
-      outline: 2px solid rgba(37,99,235,0.28);
-      background: rgba(219,234,254,0.72);
-    }
-
-    .day-name {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .day-date {
-      font-size: 22px;
-      font-weight: 800;
+    .mini strong {
+      display: block;
+      font-size: 24px;
       letter-spacing: -0.05em;
-      margin-top: 5px;
     }
 
-    .day-count {
-      margin-top: 14px;
-      display: inline-flex;
-      padding: 6px 9px;
-      border-radius: 999px;
-      background: white;
-      border: 1px solid var(--line);
+    .mini span {
+      color: var(--muted);
       font-size: 12px;
-      font-weight: 800;
     }
 
     .empty {
@@ -361,20 +307,20 @@
         grid-template-columns: 1fr;
       }
 
-      .topbar {
-        align-items: flex-start;
-      }
-
       .toolbar {
         justify-content: flex-start;
       }
 
-      .search {
-        width: 100%;
+      .summary-strip {
+        grid-template-columns: repeat(2, 1fr);
       }
 
-      .calendar {
-        grid-template-columns: repeat(2, 1fr);
+      .chart {
+        gap: 7px;
+      }
+
+      .x-label {
+        font-size: 10px;
       }
     }
   </style>
@@ -387,13 +333,12 @@
         <div class="logo">OA</div>
         <div>
           <h1>Office Attendance</h1>
-          <p>Realtime Firebase attendance dashboard</p>
+          <p>Private attendance totals dashboard</p>
         </div>
       </div>
 
       <div class="toolbar">
         <input id="datePicker" class="date-input" type="date" />
-        <input id="searchInput" class="search" type="search" placeholder="Search name..." />
         <button class="btn secondary" onclick="setToday()">Today</button>
         <button class="btn" onclick="loadDashboard()">Refresh</button>
       </div>
@@ -402,18 +347,15 @@
     <section class="hero">
       <div class="card hero-main">
         <div class="eyebrow">● Live office view</div>
-        <h2>Today’s attendance, cleanly visible.</h2>
-        <p>
-          A lightweight dashboard reading directly from Firebase Realtime Database.
-          Use it as a GitHub Pages static app with no backend server required.
-        </p>
+        <h2>Attendance trends without showing names.</h2>
+        <p>Reads from Firebase Realtime Database and displays daily and weekly attendance totals only.</p>
       </div>
 
       <div class="card stat-card">
         <div class="status-pill" id="statusPill">Connected</div>
         <div>
           <div class="number" id="todayCount">0</div>
-          <div class="label">people recorded for selected day</div>
+          <div class="muted">people recorded for selected day</div>
         </div>
       </div>
     </section>
@@ -421,18 +363,44 @@
     <section class="grid">
       <div class="card panel">
         <div class="panel-title">
-          <h3>In office</h3>
-          <span id="selectedDateLabel"></span>
+          <h3>Daily chart</h3>
+          <span class="muted" id="dailyLabel"></span>
         </div>
-        <div id="attendeeList" class="attendee-list"></div>
+        <div id="dailyChart" class="chart"></div>
       </div>
 
       <div class="card panel">
         <div class="panel-title">
-          <h3>This week</h3>
-          <span>Daily totals</span>
+          <h3>Weekly chart</h3>
+          <span class="muted">Last 8 weeks</span>
         </div>
-        <div id="weekGrid" class="calendar"></div>
+        <div id="weeklyChart" class="chart"></div>
+      </div>
+
+      <div class="card panel wide">
+        <div class="panel-title">
+          <h3>Summary</h3>
+          <span class="muted">Totals only</span>
+        </div>
+
+        <div class="summary-strip">
+          <div class="mini">
+            <strong id="selectedTotal">0</strong>
+            <span>Selected day</span>
+          </div>
+          <div class="mini">
+            <strong id="weekTotal">0</strong>
+            <span>This week</span>
+          </div>
+          <div class="mini">
+            <strong id="weekAverage">0</strong>
+            <span>Daily average this week</span>
+          </div>
+          <div class="mini">
+            <strong id="bestDay">-</strong>
+            <span>Highest day this week</span>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -441,14 +409,16 @@
     const FIREBASE_DB_URL = "https://office-attendance-bfc67-default-rtdb.firebaseio.com";
 
     const datePicker = document.getElementById("datePicker");
-    const searchInput = document.getElementById("searchInput");
-    const attendeeList = document.getElementById("attendeeList");
     const todayCount = document.getElementById("todayCount");
-    const selectedDateLabel = document.getElementById("selectedDateLabel");
-    const weekGrid = document.getElementById("weekGrid");
     const statusPill = document.getElementById("statusPill");
+    const dailyChart = document.getElementById("dailyChart");
+    const weeklyChart = document.getElementById("weeklyChart");
+    const dailyLabel = document.getElementById("dailyLabel");
 
-    let currentPeople = [];
+    const selectedTotal = document.getElementById("selectedTotal");
+    const weekTotal = document.getElementById("weekTotal");
+    const weekAverage = document.getElementById("weekAverage");
+    const bestDay = document.getElementById("bestDay");
 
     function localDateString(date = new Date()) {
       const offset = date.getTimezoneOffset();
@@ -456,131 +426,122 @@
       return local.toISOString().slice(0, 10);
     }
 
-    function prettyDate(dateText) {
-      return new Date(dateText + "T00:00:00").toLocaleDateString("en-AU", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-        year: "numeric"
-      });
+    function addDays(date, days) {
+      const copy = new Date(date);
+      copy.setDate(copy.getDate() + days);
+      return copy;
     }
 
-    function prettyTime(value) {
-      if (!value) return "Recorded";
-      return new Date(value).toLocaleTimeString("en-AU", {
-        hour: "2-digit",
-        minute: "2-digit"
-      });
+    function startOfWeek(date) {
+      const copy = new Date(date);
+      const day = copy.getDay();
+      const mondayOffset = day === 0 ? -6 : 1 - day;
+      copy.setDate(copy.getDate() + mondayOffset);
+      copy.setHours(0, 0, 0, 0);
+      return copy;
     }
 
-    function initials(name) {
-      return String(name || "?")
-        .trim()
-        .split(/\s+/)
-        .slice(0, 2)
-        .map(part => part[0]?.toUpperCase() || "")
-        .join("");
-    }
-
-    async function fetchAttendance(dateText) {
+    async function fetchAttendanceCount(dateText) {
       const url = `${FIREBASE_DB_URL}/attendance/${dateText}.json`;
       const response = await fetch(url);
       if (!response.ok) throw new Error(`Firebase read failed: ${response.status}`);
-      return await response.json();
+      const data = await response.json();
+      return Object.values(data || {}).filter(item => item && item.inOffice).length;
     }
 
-    function renderPeople() {
-      const query = searchInput.value.trim().toLowerCase();
+    function renderBarChart(container, data, labelKey, valueKey) {
+      const max = Math.max(...data.map(item => item[valueKey]), 1);
 
-      const filtered = currentPeople.filter(person =>
-        person.name.toLowerCase().includes(query)
-      );
+      container.innerHTML = data.map(item => {
+        const value = item[valueKey];
+        const height = Math.max((value / max) * 210, value > 0 ? 8 : 4);
 
-      todayCount.textContent = filtered.length;
-
-      if (!filtered.length) {
-        attendeeList.innerHTML = `<div class="empty">No attendance records found.</div>`;
-        return;
-      }
-
-      attendeeList.innerHTML = filtered.map(person => `
-        <div class="person">
-          <div class="person-main">
-            <div class="avatar">${initials(person.name)}</div>
-            <div>
-              <div class="person-name">${escapeHtml(person.name)}</div>
-              <div class="person-time">${prettyTime(person.recordedAt)}</div>
+        return `
+          <div class="bar-wrap">
+            <div class="bar" style="height:${height}px">
+              <span>${value}</span>
             </div>
+            <div class="x-label">${item[labelKey]}</div>
           </div>
-          <div class="badge">In office</div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
 
     async function loadDashboard() {
-      const dateText = datePicker.value || localDateString();
-      selectedDateLabel.textContent = prettyDate(dateText);
+      const selectedDate = datePicker.value || localDateString();
+      const selectedBase = new Date(selectedDate + "T00:00:00");
+      const weekStart = startOfWeek(selectedBase);
+
       statusPill.textContent = "Loading...";
       statusPill.style.color = "#1d4ed8";
       statusPill.style.background = "#dbeafe";
 
       try {
-        const data = await fetchAttendance(dateText);
+        const dailyData = [];
 
-        currentPeople = Object.values(data || {})
-          .filter(item => item && item.inOffice)
-          .sort((a, b) => String(a.name).localeCompare(String(b.name)));
+        for (let i = 0; i < 7; i++) {
+          const date = addDays(weekStart, i);
+          const key = localDateString(date);
+          const count = await fetchAttendanceCount(key);
 
-        renderPeople();
-        await renderWeek(dateText);
+          dailyData.push({
+            label: date.toLocaleDateString("en-AU", { weekday: "short" }),
+            key,
+            count
+          });
+        }
+
+        const weeklyData = [];
+
+        for (let i = 7; i >= 0; i--) {
+          const week = addDays(weekStart, -7 * i);
+          let total = 0;
+
+          for (let d = 0; d < 7; d++) {
+            total += await fetchAttendanceCount(localDateString(addDays(week, d)));
+          }
+
+          weeklyData.push({
+            label: `W${getWeekNumber(week)}`,
+            total
+          });
+        }
+
+        const selectedDayCount = dailyData.find(item => item.key === selectedDate)?.count ?? 0;
+        const currentWeekTotal = dailyData.reduce((sum, item) => sum + item.count, 0);
+        const highest = dailyData.reduce((best, item) => item.count > best.count ? item : best, dailyData[0]);
+
+        todayCount.textContent = selectedDayCount;
+        selectedTotal.textContent = selectedDayCount;
+        weekTotal.textContent = currentWeekTotal;
+        weekAverage.textContent = (currentWeekTotal / 7).toFixed(1);
+        bestDay.textContent = `${highest.label} (${highest.count})`;
+
+        dailyLabel.textContent = `Week of ${weekStart.toLocaleDateString("en-AU", { day: "numeric", month: "short" })}`;
+
+        renderBarChart(dailyChart, dailyData, "label", "count");
+        renderBarChart(weeklyChart, weeklyData, "label", "total");
 
         statusPill.textContent = "Connected";
         statusPill.style.color = "#16a34a";
         statusPill.style.background = "#dcfce7";
       } catch (error) {
         console.error(error);
-        attendeeList.innerHTML = `<div class="empty">Could not load Firebase data.</div>`;
+        dailyChart.innerHTML = `<div class="empty">Could not load Firebase data.</div>`;
+        weeklyChart.innerHTML = `<div class="empty">Could not load Firebase data.</div>`;
+
         statusPill.textContent = "Error";
         statusPill.style.color = "#dc2626";
         statusPill.style.background = "#fee2e2";
       }
     }
 
-    async function renderWeek(dateText) {
-      const base = new Date(dateText + "T00:00:00");
-      const day = base.getDay();
-      const mondayOffset = day === 0 ? -6 : 1 - day;
-      const monday = new Date(base);
-      monday.setDate(base.getDate() + mondayOffset);
-
-      const days = [];
-
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(monday);
-        date.setDate(monday.getDate() + i);
-        days.push(date);
-      }
-
-      const results = await Promise.all(days.map(async date => {
-        const key = localDateString(date);
-        try {
-          const data = await fetchAttendance(key);
-          const count = Object.values(data || {}).filter(item => item && item.inOffice).length;
-          return { date, key, count };
-        } catch {
-          return { date, key, count: 0 };
-        }
-      }));
-
-      const today = localDateString();
-
-      weekGrid.innerHTML = results.map(item => `
-        <div class="day ${item.key === today ? "today" : ""}">
-          <div class="day-name">${item.date.toLocaleDateString("en-AU", { weekday: "short" })}</div>
-          <div class="day-date">${item.date.getDate()}</div>
-          <div class="day-count">${item.count} in</div>
-        </div>
-      `).join("");
+    function getWeekNumber(date) {
+      const target = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const dayNum = target.getUTCDay() || 7;
+      target.setUTCDate(target.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(target.getUTCFullYear(), 0, 1));
+      return Math.ceil((((target - yearStart) / 86400000) + 1) / 7);
     }
 
     function setToday() {
@@ -588,16 +549,6 @@
       loadDashboard();
     }
 
-    function escapeHtml(value) {
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    searchInput.addEventListener("input", renderPeople);
     datePicker.value = localDateString();
     loadDashboard();
   </script>
