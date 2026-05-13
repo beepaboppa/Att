@@ -1,563 +1,230 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Office Attendance Dashboard</title>
+import json
+import re
+import sys
+import tkinter as tk
+from datetime import datetime
+from pathlib import Path
+from tkinter import Tk, simpledialog, messagebox
 
-  <style>
-    :root {
-      --bg: #f6f7fb;
-      --panel: rgba(255,255,255,0.78);
-      --text: #111827;
-      --muted: #6b7280;
-      --line: rgba(17,24,39,0.08);
-      --blue: #2563eb;
-      --blue-soft: #dbeafe;
-      --green: #16a34a;
-      --green-soft: #dcfce7;
-      --shadow: 0 24px 70px rgba(15,23,42,0.10);
-      --radius: 24px;
+import certifi
+import requests
+
+try:
+    import truststore
+    truststore.inject_into_ssl()
+except Exception:
+    pass
+
+
+FIREBASE_DB_URL = "https://office-attendance-bfc67-default-rtdb.firebaseio.com"
+
+APP_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
+CONFIG_FILE = APP_DIR / "config.json"
+
+
+def clean_key(text):
+    return re.sub(r"[^a-zA-Z0-9_-]", "_", text.strip())
+
+
+def today_text():
+    return datetime.now().strftime("%Y-%m-%d")
+
+
+def is_weekday():
+    return datetime.now().weekday() < 5
+
+
+def load_name(root):
+    if CONFIG_FILE.exists():
+        with open(CONFIG_FILE, "r", encoding="utf-8") as file:
+            data = json.load(file)
+            if data.get("name"):
+                return data["name"]
+
+    name = simpledialog.askstring("Office Attendance", "Enter your name:", parent=root)
+
+    if not name:
+        sys.exit()
+
+    name = name.strip()
+
+    with open(CONFIG_FILE, "w", encoding="utf-8") as file:
+        json.dump({"name": name}, file, indent=2)
+
+    return name
+
+
+def record_attendance(name, working_from):
+    today = today_text()
+    safe_name = clean_key(name)
+
+    url = f"{FIREBASE_DB_URL}/attendance/{today}/{safe_name}.json"
+
+    payload = {
+        "name": name,
+        "inOffice": working_from in ["GC", "BNE"],
+        "workingFrom": working_from,
+        "date": today,
+        "recordedAt": datetime.now().isoformat(timespec="seconds")
     }
 
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(37,99,235,0.16), transparent 35%),
-        radial-gradient(circle at top right, rgba(22,163,74,0.12), transparent 28%),
-        linear-gradient(180deg, #fff 0%, var(--bg) 44%, #eef2ff 100%);
-    }
-
-    .shell {
-      width: min(1180px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 28px 0 42px;
-    }
-
-    .topbar, .hero, .grid {
-      display: grid;
-      gap: 18px;
-    }
-
-    .topbar {
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      margin-bottom: 34px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #2563eb, #60a5fa);
-      box-shadow: 0 14px 32px rgba(37,99,235,0.25);
-      display: grid;
-      place-items: center;
-      color: white;
-      font-weight: 800;
-    }
-
-    h1, h2, h3, p { margin: 0; }
-
-    .brand h1 {
-      font-size: 18px;
-      letter-spacing: -0.03em;
-    }
-
-    .brand p, .muted {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    input, button { font: inherit; }
-
-    .date-input, .btn {
-      border-radius: 14px;
-      padding: 11px 13px;
-    }
-
-    .date-input {
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.75);
-      outline: none;
-    }
-
-    .btn {
-      border: 0;
-      background: #111827;
-      color: white;
-      cursor: pointer;
-      box-shadow: 0 14px 32px rgba(17,24,39,0.16);
-    }
-
-    .btn.secondary {
-      color: var(--text);
-      background: rgba(255,255,255,0.76);
-      border: 1px solid var(--line);
-      box-shadow: none;
-    }
-
-    .hero {
-      grid-template-columns: 1.35fr 0.65fr;
-      margin-bottom: 18px;
-    }
-
-    .card {
-      background: var(--panel);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.78);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-
-    .hero-main {
-      padding: 34px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-main::after {
-      content: "";
-      position: absolute;
-      width: 280px;
-      height: 280px;
-      border-radius: 999px;
-      background: rgba(37,99,235,0.10);
-      right: -80px;
-      top: -100px;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      color: #1d4ed8;
-      background: var(--blue-soft);
-      padding: 7px 11px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 800;
-      margin-bottom: 16px;
-    }
-
-    .hero-main h2 {
-      font-size: clamp(34px, 5vw, 62px);
-      line-height: 0.95;
-      letter-spacing: -0.07em;
-      max-width: 720px;
-    }
-
-    .hero-main p {
-      margin-top: 18px;
-      color: var(--muted);
-      font-size: 16px;
-      line-height: 1.6;
-      max-width: 640px;
-    }
-
-    .stat-card {
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-height: 230px;
-    }
-
-    .number {
-      font-size: 72px;
-      line-height: 1;
-      letter-spacing: -0.08em;
-      font-weight: 850;
-    }
-
-    .status-pill {
-      align-self: flex-start;
-      color: var(--green);
-      background: var(--green-soft);
-      padding: 8px 11px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .grid {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .panel {
-      padding: 22px;
-    }
-
-    .wide {
-      grid-column: 1 / -1;
-    }
-
-    .panel-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .panel-title h3 {
-      font-size: 17px;
-      letter-spacing: -0.03em;
-    }
-
-    .chart {
-      height: 260px;
-      display: flex;
-      align-items: end;
-      gap: 12px;
-      padding-top: 18px;
-      border-top: 1px solid var(--line);
-    }
-
-    .bar-wrap {
-      flex: 1;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: end;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-    }
-
-    .bar {
-      width: 100%;
-      max-width: 54px;
-      min-height: 4px;
-      border-radius: 12px 12px 6px 6px;
-      background: linear-gradient(180deg, #2563eb, #93c5fd);
-      box-shadow: 0 12px 26px rgba(37,99,235,0.22);
-      position: relative;
-    }
-
-    .bar span {
-      position: absolute;
-      top: -24px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--text);
-    }
-
-    .x-label {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 750;
-      white-space: nowrap;
-    }
-
-    .summary-strip {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    .mini {
-      padding: 16px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.72);
-      border: 1px solid var(--line);
-    }
-
-    .mini strong {
-      display: block;
-      font-size: 24px;
-      letter-spacing: -0.05em;
-    }
-
-    .mini span {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .empty {
-      color: var(--muted);
-      padding: 28px;
-      text-align: center;
-      border: 1px dashed var(--line);
-      border-radius: 18px;
-      background: rgba(255,255,255,0.5);
-    }
-
-    @media (max-width: 850px) {
-      .topbar, .hero, .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .toolbar {
-        justify-content: flex-start;
-      }
-
-      .summary-strip {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .chart {
-        gap: 7px;
-      }
-
-      .x-label {
-        font-size: 10px;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <main class="shell">
-    <header class="topbar">
-      <div class="brand">
-        <div class="logo">OA</div>
-        <div>
-          <h1>Office Attendance</h1>
-          <p>Private attendance totals dashboard</p>
-        </div>
-      </div>
-
-      <div class="toolbar">
-        <input id="datePicker" class="date-input" type="date" />
-        <button class="btn secondary" onclick="setToday()">Today</button>
-        <button class="btn" onclick="loadDashboard()">Refresh</button>
-      </div>
-    </header>
-
-    <section class="hero">
-      <div class="card hero-main">
-        <div class="eyebrow">● Live office view</div>
-        <h2>Attendance trends without showing names.</h2>
-        <p>Reads from Firebase Realtime Database and displays daily and weekly attendance totals only.</p>
-      </div>
-
-      <div class="card stat-card">
-        <div class="status-pill" id="statusPill">Connected</div>
-        <div>
-          <div class="number" id="todayCount">0</div>
-          <div class="muted">people recorded for selected day</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="grid">
-      <div class="card panel">
-        <div class="panel-title">
-          <h3>Daily chart</h3>
-          <span class="muted" id="dailyLabel"></span>
-        </div>
-        <div id="dailyChart" class="chart"></div>
-      </div>
-
-      <div class="card panel">
-        <div class="panel-title">
-          <h3>Weekly chart</h3>
-          <span class="muted">Last 8 weeks</span>
-        </div>
-        <div id="weeklyChart" class="chart"></div>
-      </div>
-
-      <div class="card panel wide">
-        <div class="panel-title">
-          <h3>Summary</h3>
-          <span class="muted">Totals only</span>
-        </div>
-
-        <div class="summary-strip">
-          <div class="mini">
-            <strong id="selectedTotal">0</strong>
-            <span>Selected day</span>
-          </div>
-          <div class="mini">
-            <strong id="weekTotal">0</strong>
-            <span>This week</span>
-          </div>
-          <div class="mini">
-            <strong id="weekAverage">0</strong>
-            <span>Daily average this week</span>
-          </div>
-          <div class="mini">
-            <strong id="bestDay">-</strong>
-            <span>Highest day this week</span>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
- <script>
-  const FIREBASE_DB_URL = "https://office-attendance-bfc67-default-rtdb.firebaseio.com";
-
-  const datePicker = document.getElementById("datePicker");
-  const todayCount = document.getElementById("todayCount");
-  const statusPill = document.getElementById("statusPill");
-  const dailyChart = document.getElementById("dailyChart");
-  const weeklyChart = document.getElementById("weeklyChart");
-  const dailyLabel = document.getElementById("dailyLabel");
-
-  const selectedTotal = document.getElementById("selectedTotal");
-  const weekTotal = document.getElementById("weekTotal");
-  const weekAverage = document.getElementById("weekAverage");
-  const bestDay = document.getElementById("bestDay");
-
-  let allAttendance = null;
-
-  function localDateString(date = new Date()) {
-    const offset = date.getTimezoneOffset();
-    const local = new Date(date.getTime() - offset * 60000);
-    return local.toISOString().slice(0, 10);
-  }
-
-  function addDays(date, days) {
-    const copy = new Date(date);
-    copy.setDate(copy.getDate() + days);
-    return copy;
-  }
-
-  function startOfWeek(date) {
-    const copy = new Date(date);
-    const day = copy.getDay();
-    const mondayOffset = day === 0 ? -6 : 1 - day;
-    copy.setDate(copy.getDate() + mondayOffset);
-    copy.setHours(0, 0, 0, 0);
-    return copy;
-  }
-
-  async function fetchAllAttendance() {
-    const response = await fetch(`${FIREBASE_DB_URL}/attendance.json`);
-    if (!response.ok) throw new Error(`Firebase read failed: ${response.status}`);
-    allAttendance = await response.json() || {};
-  }
-
-  function getAttendanceCount(dateText) {
-    const dayData = allAttendance?.[dateText] || {};
-    return Object.values(dayData).filter(item => item && item.inOffice).length;
-  }
-
-  function renderBarChart(container, data, labelKey, valueKey) {
-    const max = Math.max(...data.map(item => item[valueKey]), 1);
-
-    container.innerHTML = data.map(item => {
-      const value = item[valueKey];
-      const height = Math.max((value / max) * 210, value > 0 ? 8 : 4);
-
-      return `
-        <div class="bar-wrap">
-          <div class="bar" style="height:${height}px">
-            <span>${value}</span>
-          </div>
-          <div class="x-label">${item[labelKey]}</div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  async function loadDashboard() {
-    const selectedDate = datePicker.value || localDateString();
-    const selectedBase = new Date(selectedDate + "T00:00:00");
-    const weekStart = startOfWeek(selectedBase);
-
-    statusPill.textContent = "Loading...";
-    statusPill.style.color = "#1d4ed8";
-    statusPill.style.background = "#dbeafe";
-
-    try {
-      await fetchAllAttendance();
-
-      const dailyData = [];
-
-      for (let i = 0; i < 7; i++) {
-        const date = addDays(weekStart, i);
-        const key = localDateString(date);
-
-        dailyData.push({
-          label: date.toLocaleDateString("en-AU", { weekday: "short" }),
-          key,
-          count: getAttendanceCount(key)
-        });
-      }
-
-      const weeklyData = [];
-
-      for (let i = 7; i >= 0; i--) {
-        const week = addDays(weekStart, -7 * i);
-        let total = 0;
-
-        for (let d = 0; d < 7; d++) {
-          total += getAttendanceCount(localDateString(addDays(week, d)));
-        }
-
-        weeklyData.push({
-          label: `W${getWeekNumber(week)}`,
-          total
-        });
-      }
-
-      const selectedDayCount = getAttendanceCount(selectedDate);
-      const currentWeekTotal = dailyData.reduce((sum, item) => sum + item.count, 0);
-      const highest = dailyData.reduce((best, item) => item.count > best.count ? item : best, dailyData[0]);
-
-      todayCount.textContent = selectedDayCount;
-      selectedTotal.textContent = selectedDayCount;
-      weekTotal.textContent = currentWeekTotal;
-      weekAverage.textContent = (currentWeekTotal / 7).toFixed(1);
-      bestDay.textContent = `${highest.label} (${highest.count})`;
-
-      dailyLabel.textContent = `Week of ${weekStart.toLocaleDateString("en-AU", { day: "numeric", month: "short" })}`;
-
-      renderBarChart(dailyChart, dailyData, "label", "count");
-      renderBarChart(weeklyChart, weeklyData, "label", "total");
-
-      statusPill.textContent = "Connected";
-      statusPill.style.color = "#16a34a";
-      statusPill.style.background = "#dcfce7";
-    } catch (error) {
-      console.error(error);
-
-      dailyChart.innerHTML = `<div class="empty">Could not load Firebase data.</div>`;
-      weeklyChart.innerHTML = `<div class="empty">Could not load Firebase data.</div>`;
-
-      statusPill.textContent = "Error";
-      statusPill.style.color = "#dc2626";
-      statusPill.style.background = "#fee2e2";
-    }
-  }
-
-  function getWeekNumber(date) {
-    const target = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    const dayNum = target.getUTCDay() || 7;
-    target.setUTCDate(target.getUTCDate() + 4 - dayNum);
-    const yearStart = new Date(Date.UTC(target.getUTCFullYear(), 0, 1));
-    return Math.ceil((((target - yearStart) / 86400000) + 1) / 7);
-  }
-
-  function setToday() {
-    datePicker.value = localDateString();
-    loadDashboard();
-  }
-
-  datePicker.value = localDateString();
-  loadDashboard();
-</script>
-</body>
-</html>
+    response = requests.put(url, json=payload, timeout=10, verify=certifi.where())
+    response.raise_for_status()
+
+
+def get_monitor_bounds(root):
+    try:
+        import ctypes
+
+        monitors = []
+
+        monitor_enum_proc = ctypes.WINFUNCTYPE(
+            ctypes.c_int,
+            ctypes.c_ulong,
+            ctypes.c_ulong,
+            ctypes.POINTER(ctypes.c_long * 4),
+            ctypes.c_double
+        )
+
+        def callback(hmonitor, hdc, rect, data):
+            left, top, right, bottom = rect.contents
+            monitors.append((left, top, right - left, bottom - top))
+            return 1
+
+        ctypes.windll.user32.EnumDisplayMonitors(
+            0,
+            0,
+            monitor_enum_proc(callback),
+            0
+        )
+
+        if monitors:
+            return monitors
+
+    except Exception:
+        pass
+
+    return [(0, 0, root.winfo_screenwidth(), root.winfo_screenheight())]
+
+
+def show_fade_message(root, text):
+    monitors = get_monitor_bounds(root)
+    popups = []
+
+    for monitor_x, monitor_y, monitor_w, monitor_h in monitors:
+        popup = tk.Toplevel(root)
+        popup.overrideredirect(True)
+        popup.attributes("-topmost", True)
+        popup.attributes("-alpha", 0.9)
+
+        width = 280
+        height = 72
+
+        x = monitor_x + monitor_w - width - 30
+        y = monitor_y + monitor_h - height - 80
+
+        popup.geometry(f"{width}x{height}+{x}+{y}")
+        popup.configure(bg="#222222")
+
+        label = tk.Label(
+            popup,
+            text=text,
+            fg="white",
+            bg="#222222",
+            font=("Segoe UI", 13)
+        )
+        label.pack(expand=True, fill="both")
+
+        popups.append(popup)
+
+    def fade(alpha=0.9):
+        alpha -= 0.05
+
+        if alpha <= 0:
+            for popup in popups:
+                try:
+                    popup.destroy()
+                except Exception:
+                    pass
+            root.destroy()
+            return
+
+        for popup in popups:
+            try:
+                popup.attributes("-alpha", alpha)
+            except Exception:
+                pass
+
+        root.after(80, fade, alpha)
+
+    root.after(900, fade)
+
+
+def ask_working_from(root, name):
+    selected = {"value": None}
+
+    popup = tk.Toplevel(root)
+    popup.title("Office Attendance")
+    popup.resizable(False, False)
+    popup.attributes("-topmost", True)
+
+    width = 330
+    height = 180
+    x = int((popup.winfo_screenwidth() - width) / 2)
+    y = int((popup.winfo_screenheight() - height) / 2)
+    popup.geometry(f"{width}x{height}+{x}+{y}")
+
+    tk.Label(
+        popup,
+        text=f"Hi {name}, working from?",
+        font=("Segoe UI", 12)
+    ).pack(pady=(24, 16))
+
+    button_frame = tk.Frame(popup)
+    button_frame.pack(pady=8)
+
+    def choose(value):
+        selected["value"] = value
+        popup.destroy()
+
+    for option in ["Home", "GC", "BNE"]:
+        tk.Button(
+            button_frame,
+            text=option,
+            width=8,
+            command=lambda value=option: choose(value)
+        ).pack(side="left", padx=6)
+
+    popup.protocol("WM_DELETE_WINDOW", popup.destroy)
+    root.wait_window(popup)
+
+    return selected["value"]
+
+
+def main():
+    root = Tk()
+    root.withdraw()
+    root.update_idletasks()
+
+    if not is_weekday():
+        root.destroy()
+        return
+
+    name = load_name(root)
+    working_from = ask_working_from(root, name)
+
+    if not working_from:
+        root.destroy()
+        return
+
+    try:
+        record_attendance(name, working_from)
+        show_fade_message(root, f"Attendance recorded: {working_from}")
+        root.mainloop()
+    except Exception as error:
+        messagebox.showerror("Error", f"Could not record attendance:\n\n{error}", parent=root)
+        root.destroy()
+
+
+if __name__ == "__main__":
+    main()
