@@ -508,47 +508,79 @@
       return counts.Home + counts.GC + counts.BNE;
     }
 
-    function renderLineChart(container, data, xKey, seriesKeys) {
+    function renderLineChart(container, data, xKey, seriesKeys, rotateLabels = false) {
       const width = 820;
       const height = 330;
-      const padding = { left: 42, right: 24, top: 20, bottom: 92 };
-
+      const padding = {
+        left: 44,
+        right: 24,
+        top: 20,
+        bottom: rotateLabels ? 104 : 54
+      };
+    
       const plotW = width - padding.left - padding.right;
       const plotH = height - padding.top - padding.bottom;
-
-      const maxValue = Math.max(1, ...data.flatMap(item => seriesKeys.map(key => item[key])));
-
+    
+      const maxDataValue = Math.max(1, ...data.flatMap(item => seriesKeys.map(key => item[key])));
+      const maxValue = Math.ceil(maxDataValue);
+      const yTicks = Array.from({ length: maxValue + 1 }, (_, i) => i);
+    
       const x = index => data.length === 1
         ? padding.left + plotW / 2
         : padding.left + (index / (data.length - 1)) * plotW;
-
+    
       const y = value => padding.top + plotH - (value / maxValue) * plotH;
-
+    
       function linePath(key) {
         return data.map((item, index) => `${index === 0 ? "M" : "L"} ${x(index)} ${y(item[key])}`).join(" ");
       }
-
+    
       function areaPath(key) {
         if (!data.length) return "";
         const topLine = data.map((item, index) => `${index === 0 ? "M" : "L"} ${x(index)} ${y(item[key])}`).join(" ");
         return `${topLine} L ${x(data.length - 1)} ${y(0)} L ${x(0)} ${y(0)} Z`;
       }
-
+    
       function pointsFor(key, className) {
         return data.map((item, index) => `
-          <circle class="${className}" cx="${x(index)}" cy="${y(item[key])}" r="13">
+          <circle class="${className}" cx="${x(index)}" cy="${y(item[key])}" r="10.4">
             <title>${item.fullLabel || item[xKey]} - ${key}: ${item[key]}</title>
           </circle>
         `).join("");
       }
-
+    
+      function xLabels() {
+        return data.map((item, index) => {
+          if (rotateLabels) {
+            return `
+              <text
+                class="axis-label axis-label-large"
+                x="${x(index)}"
+                y="${height - 12}"
+                text-anchor="end"
+                transform="rotate(-90 ${x(index)} ${height - 12})"
+              >${item[xKey]}</text>
+            `;
+          }
+    
+          return `
+            <text
+              class="axis-label axis-label-large"
+              x="${x(index)}"
+              y="${height - 16}"
+              text-anchor="middle"
+            >${item[xKey]}</text>
+          `;
+        }).join("");
+      }
+    
       container.innerHTML = `
         <div class="chart-legend">
           <span class="legend-item"><span class="legend-dot dot-home"></span>Home</span>
           <span class="legend-item"><span class="legend-dot dot-gc"></span>GC</span>
           <span class="legend-item"><span class="legend-dot dot-bne"></span>BNE</span>
         </div>
-
+    
         <svg class="line-chart" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">
           <defs>
             <linearGradient id="gradHome" x1="0" y1="0" x2="0" y2="1">
@@ -564,40 +596,28 @@
               <stop offset="100%" stop-color="#22c55e" stop-opacity="0"></stop>
             </linearGradient>
           </defs>
-
-          <line class="grid-line" x1="${padding.left}" y1="${y(0)}" x2="${width - padding.right}" y2="${y(0)}"></line>
-          <line class="grid-line" x1="${padding.left}" y1="${y(maxValue / 2)}" x2="${width - padding.right}" y2="${y(maxValue / 2)}"></line>
-          <line class="grid-line" x1="${padding.left}" y1="${y(maxValue)}" x2="${width - padding.right}" y2="${y(maxValue)}"></line>
-
+    
+          ${yTicks.map(tick => `
+            <line class="grid-line" x1="${padding.left}" y1="${y(tick)}" x2="${width - padding.right}" y2="${y(tick)}"></line>
+            <text class="axis-label" x="8" y="${y(tick) + 4}">${tick}</text>
+          `).join("")}
+    
           <path class="area-home" d="${areaPath("Home")}"></path>
           <path class="area-gc" d="${areaPath("GC")}"></path>
           <path class="area-bne" d="${areaPath("BNE")}"></path>
-
+    
           <path class="line-home" d="${linePath("Home")}"></path>
           <path class="line-gc" d="${linePath("GC")}"></path>
           <path class="line-bne" d="${linePath("BNE")}"></path>
-
+    
           ${pointsFor("Home", "point-home")}
           ${pointsFor("GC", "point-gc")}
           ${pointsFor("BNE", "point-bne")}
-
-          <text class="axis-label" x="4" y="${y(maxValue)}">${Math.ceil(maxValue)}</text>
-          <text class="axis-label" x="4" y="${y(maxValue / 2)}">${Math.round(maxValue / 2)}</text>
-          <text class="axis-label" x="4" y="${y(0)}">0</text>
-
-          ${data.map((item, index) => `
-            <text
-              class="axis-label axis-label-large"
-              x="${x(index)}"
-              y="${height - 76}"
-              text-anchor="end"
-              transform="rotate(-90 ${x(index)} ${height - 76})"
-            >${item[xKey]}</text>
-          `).join("")}
+    
+          ${xLabels()}
         </svg>
       `;
     }
-
     async function loadDashboard() {
       const selectedDate = datePicker.value || localDateString();
       const selectedBase = new Date(selectedDate + "T00:00:00");
@@ -674,8 +694,8 @@
 
         dailyLabel.textContent = `Week of ${weekStart.toLocaleDateString("en-AU", { day: "numeric", month: "short" })}`;
 
-        renderLineChart(dailyChart, dailyData, "label", ["Home", "GC", "BNE"]);
-        renderLineChart(weeklyChart, weeklyData, "label", ["Home", "GC", "BNE"]);
+        renderLineChart(dailyChart, dailyData, "label", ["Home", "GC", "BNE"], false);
+        renderLineChart(weeklyChart, weeklyData, "label", ["Home", "GC", "BNE"], true);
 
         statusPill.textContent = "Connected";
         statusPill.style.color = "#16a34a";
