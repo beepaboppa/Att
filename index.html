@@ -33,328 +33,73 @@
         linear-gradient(180deg, #fff 0%, var(--bg) 44%, #eef2ff 100%);
     }
 
-    .shell {
-      width: min(1180px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 28px 0 42px;
-    }
-
-    .topbar, .hero, .grid {
-      display: grid;
-      gap: 18px;
-    }
-
-    .topbar {
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      margin-bottom: 34px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #2563eb, #60a5fa);
-      box-shadow: 0 14px 32px rgba(37,99,235,0.25);
-      display: grid;
-      place-items: center;
-      color: white;
-      font-weight: 800;
-    }
-
+    .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 42px; }
+    .topbar, .hero, .grid { display: grid; gap: 18px; }
+    .topbar { grid-template-columns: 1fr auto; align-items: center; margin-bottom: 34px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 42px; height: 42px; border-radius: 14px; background: linear-gradient(135deg, #2563eb, #60a5fa); box-shadow: 0 14px 32px rgba(37,99,235,0.25); display: grid; place-items: center; color: white; font-weight: 800; }
     h1, h2, h3, p { margin: 0; }
-
-    .brand h1 {
-      font-size: 18px;
-      letter-spacing: -0.03em;
-    }
-
-    .brand p, .muted {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
+    .brand h1 { font-size: 18px; letter-spacing: -0.03em; }
+    .brand p, .muted { color: var(--muted); font-size: 13px; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
     input, button { font: inherit; }
+    .date-input, .btn { border-radius: 14px; padding: 11px 13px; }
+    .date-input { border: 1px solid var(--line); background: rgba(255,255,255,0.75); outline: none; }
+    .btn { border: 0; background: #111827; color: white; cursor: pointer; box-shadow: 0 14px 32px rgba(17,24,39,0.16); }
+    .btn.secondary { color: var(--text); background: rgba(255,255,255,0.76); border: 1px solid var(--line); box-shadow: none; }
+    .hero { grid-template-columns: 1.35fr 0.65fr; margin-bottom: 18px; }
+    .card { background: var(--panel); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.78); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .hero-main { padding: 34px; position: relative; overflow: hidden; }
+    .hero-main::after { content: ""; position: absolute; width: 280px; height: 280px; border-radius: 999px; background: rgba(37,99,235,0.10); right: -80px; top: -100px; }
+    .eyebrow { display: inline-flex; color: #1d4ed8; background: var(--blue-soft); padding: 7px 11px; border-radius: 999px; font-size: 13px; font-weight: 800; margin-bottom: 16px; }
+    .hero-main h2 { font-size: clamp(34px, 5vw, 62px); line-height: 0.95; letter-spacing: -0.07em; max-width: 720px; }
+    .hero-main p { margin-top: 18px; color: var(--muted); font-size: 16px; line-height: 1.6; max-width: 640px; }
+    .stat-card { padding: 24px; display: flex; flex-direction: column; justify-content: space-between; min-height: 230px; }
+    .number { font-size: 72px; line-height: 1; letter-spacing: -0.08em; font-weight: 850; }
+    .status-pill { align-self: flex-start; color: var(--green); background: var(--green-soft); padding: 8px 11px; border-radius: 999px; font-size: 13px; font-weight: 800; }
+    .grid { grid-template-columns: 1fr 1fr; }
+    .panel { padding: 22px; }
+    .wide { grid-column: 1 / -1; }
+    .panel-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 20px; }
+    .panel-title h3 { font-size: 17px; letter-spacing: -0.03em; }
 
-    .date-input, .btn {
-      border-radius: 14px;
-      padding: 11px 13px;
-    }
-
-    .date-input {
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.75);
-      outline: none;
-    }
-
-    .btn {
-      border: 0;
-      background: #111827;
-      color: white;
-      cursor: pointer;
-      box-shadow: 0 14px 32px rgba(17,24,39,0.16);
-    }
-
-    .btn.secondary {
-      color: var(--text);
-      background: rgba(255,255,255,0.76);
-      border: 1px solid var(--line);
-      box-shadow: none;
-    }
-
-    .hero {
-      grid-template-columns: 1.35fr 0.65fr;
-      margin-bottom: 18px;
-    }
-
-    .card {
-      background: var(--panel);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.78);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-
-    .hero-main {
-      padding: 34px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-main::after {
-      content: "";
-      position: absolute;
-      width: 280px;
-      height: 280px;
-      border-radius: 999px;
-      background: rgba(37,99,235,0.10);
-      right: -80px;
-      top: -100px;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      color: #1d4ed8;
-      background: var(--blue-soft);
-      padding: 7px 11px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 800;
-      margin-bottom: 16px;
-    }
-
-    .hero-main h2 {
-      font-size: clamp(34px, 5vw, 62px);
-      line-height: 0.95;
-      letter-spacing: -0.07em;
-      max-width: 720px;
-    }
-
-    .hero-main p {
-      margin-top: 18px;
-      color: var(--muted);
-      font-size: 16px;
-      line-height: 1.6;
-      max-width: 640px;
-    }
-
-    .stat-card {
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-height: 230px;
-    }
-
-    .number {
-      font-size: 72px;
-      line-height: 1;
-      letter-spacing: -0.08em;
-      font-weight: 850;
-    }
-
-    .status-pill {
-      align-self: flex-start;
-      color: var(--green);
-      background: var(--green-soft);
-      padding: 8px 11px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .grid {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .panel {
-      padding: 22px;
-    }
-
-    .wide {
-      grid-column: 1 / -1;
-    }
-
-    .panel-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .panel-title h3 {
-      font-size: 17px;
-      letter-spacing: -0.03em;
-    }
-
-    .chart {
-      height: 320px;
-      border-top: 1px solid var(--line);
-      padding-top: 16px;
-    }
-
-    .line-chart {
-      width: 100%;
-      height: 100%;
-      overflow: visible;
-    }
-
-    .chart-legend {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 750;
-    }
-
-    .legend-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .legend-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 999px;
-      box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
-    }
-
+    .chart { height: 520px; border-top: 1px solid var(--line); padding-top: 16px; }
+    .daily-chart { height: 420px; }
+    .line-chart { width: 100%; height: 100%; overflow: visible; }
+    .chart-legend { display: flex; gap: 22px; flex-wrap: wrap; margin-bottom: 28px; color: #4b5563; font-size: 15px; font-weight: 800; }
+    .legend-item { display: inline-flex; align-items: center; gap: 8px; }
+    .legend-dot { width: 14px; height: 14px; border-radius: 999px; box-shadow: 0 0 0 5px rgba(100,116,139,0.12); }
     .dot-home { background: #64748b; }
-    .dot-gc { background: #5b8cff; }
-    .dot-bne { background: #22c55e; }
-
-    .axis-label {
-      fill: #64748b;
-      font-size: 14px;
-      font-weight: 800;
-    }
-    
-    .axis-label-large {
-      font-size: 15px;
-      letter-spacing: 0.01em;
-    }
-
-    .grid-line {
-      stroke: rgba(148,163,184,0.18);
-      stroke-width: 1;
-    }
-
-    .line-home,
-    .line-gc,
-    .line-bne {
-      fill: none;
-      stroke-width: 3.2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
+    .dot-gc { background: #5b7cfa; }
+    .dot-bne { background: #05b86b; }
+    .axis-label { fill: #64748b; font-size: 22px; font-weight: 850; }
+    .x-label { fill: #475569; font-size: 21px; font-weight: 850; letter-spacing: -0.02em; }
+    .grid-line { stroke: rgba(100,116,139,0.22); stroke-width: 1.2; stroke-dasharray: 5 7; }
+    .zero-line { stroke: rgba(15,23,42,0.45); stroke-width: 2.5; }
+    .line-home, .line-gc, .line-bne { fill: none; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
     .line-home { stroke: #64748b; }
-    .line-gc { stroke: #5b8cff; filter: drop-shadow(0 8px 12px rgba(91,140,255,0.22)); }
-    .line-bne { stroke: #22c55e; filter: drop-shadow(0 8px 12px rgba(34,197,94,0.18)); }
-
-    .area-home { fill: url(#gradHome); opacity: 0.10; }
-    .area-gc { fill: url(#gradGc); opacity: 0.24; }
-    .area-bne { fill: url(#gradBne); opacity: 0.16; }
-
-    .point-home,
-    .point-gc,
-    .point-bne {
-      stroke: white;
-      stroke-width: 2.5;
-      filter: drop-shadow(0 5px 8px rgba(15,23,42,0.16));
-    }
-
+    .line-gc { stroke: #5b7cfa; filter: drop-shadow(0 8px 12px rgba(91,124,250,0.22)); }
+    .line-bne { stroke: #05b86b; filter: drop-shadow(0 8px 12px rgba(5,184,107,0.20)); }
+    .area-home { fill: url(#gradHome); opacity: 0.08; }
+    .area-gc { fill: url(#gradGc); opacity: 0.26; }
+    .area-bne { fill: url(#gradBne); opacity: 0.18; }
+    .point-home, .point-gc, .point-bne { stroke: white; stroke-width: 4; filter: drop-shadow(0 8px 12px rgba(15,23,42,0.20)); }
     .point-home { fill: #64748b; }
-    .point-gc { fill: #5b8cff; }
-    .point-bne { fill: #22c55e; }
+    .point-gc { fill: #5b7cfa; }
+    .point-bne { fill: #05b86b; }
 
-    .summary-strip {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    .mini {
-      padding: 16px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.72);
-      border: 1px solid var(--line);
-    }
-
-    .mini strong {
-      display: block;
-      font-size: 24px;
-      letter-spacing: -0.05em;
-    }
-
-    .mini span {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .empty {
-      color: var(--muted);
-      padding: 28px;
-      text-align: center;
-      border: 1px dashed var(--line);
-      border-radius: 18px;
-      background: rgba(255,255,255,0.5);
-    }
+    .summary-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; }
+    .mini { padding: 16px; border-radius: 18px; background: rgba(255,255,255,0.72); border: 1px solid var(--line); }
+    .mini strong { display: block; font-size: 24px; letter-spacing: -0.05em; }
+    .mini span { color: var(--muted); font-size: 12px; }
+    .empty { color: var(--muted); padding: 28px; text-align: center; border: 1px dashed var(--line); border-radius: 18px; background: rgba(255,255,255,0.5); }
 
     @media (max-width: 850px) {
-      .topbar, .hero, .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .toolbar {
-        justify-content: flex-start;
-      }
-
-      .summary-strip {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .chart {
-        height: 300px;
-      }
+      .topbar, .hero, .grid { grid-template-columns: 1fr; }
+      .toolbar { justify-content: flex-start; }
+      .summary-strip { grid-template-columns: repeat(2, 1fr); }
+      .chart { height: 500px; }
+      .daily-chart { height: 420px; }
     }
   </style>
 </head>
@@ -362,385 +107,115 @@
 <body>
   <main class="shell">
     <header class="topbar">
-      <div class="brand">
-        <div class="logo">OA</div>
-        <div>
-          <h1>Office Attendance</h1>
-          <p>Private attendance totals dashboard</p>
-        </div>
-      </div>
-
-      <div class="toolbar">
-        <input id="datePicker" class="date-input" type="date" />
-        <button class="btn secondary" onclick="setToday()">Today</button>
-        <button class="btn" onclick="loadDashboard()">Refresh</button>
-      </div>
+      <div class="brand"><div class="logo">OA</div><div><h1>Office Attendance</h1><p>Private attendance totals dashboard</p></div></div>
+      <div class="toolbar"><input id="datePicker" class="date-input" type="date" /><button class="btn secondary" onclick="setToday()">Today</button><button class="btn" onclick="loadDashboard()">Refresh</button></div>
     </header>
 
     <section class="hero">
-      <div class="card hero-main">
-        <div class="eyebrow">● Live office view</div>
-        <h2>Attendance trends without showing names.</h2>
-        <p>Reads from Firebase Realtime Database and displays Home, Gold Coast and Brisbane totals only.</p>
-      </div>
-
-      <div class="card stat-card">
-        <div class="status-pill" id="statusPill">Connected</div>
-        <div>
-          <div class="number" id="todayCount">0</div>
-          <div class="muted">people recorded for selected day</div>
-        </div>
-      </div>
+      <div class="card hero-main"><div class="eyebrow">● Live office view</div><h2>Attendance trends without showing names.</h2><p>Reads from Firebase Realtime Database and displays Home, Gold Coast and Brisbane totals only.</p></div>
+      <div class="card stat-card"><div class="status-pill" id="statusPill">Connecting...</div><div><div class="number" id="todayCount">0</div><div class="muted">people recorded for selected day</div></div></div>
     </section>
 
     <section class="grid">
-      <div class="card panel">
-        <div class="panel-title">
-          <h3>Daily trend</h3>
-          <span class="muted" id="dailyLabel"></span>
-        </div>
-        <div id="dailyChart" class="chart"></div>
-      </div>
-
-      <div class="card panel">
-        <div class="panel-title">
-          <h3>Weekly trend</h3>
-          <span class="muted">Last 8 weeks</span>
-        </div>
-        <div id="weeklyChart" class="chart"></div>
-      </div>
-
-      <div class="card panel wide">
-        <div class="panel-title">
-          <h3>Summary</h3>
-          <span class="muted">Totals only, weekdays only</span>
-        </div>
-
-        <div class="summary-strip">
-          <div class="mini">
-            <strong id="selectedTotal">0</strong>
-            <span>Selected day</span>
-          </div>
-          <div class="mini">
-            <strong id="weekTotal">0</strong>
-            <span>This week</span>
-          </div>
-          <div class="mini">
-            <strong id="weekAverage">0</strong>
-            <span>Daily average this week</span>
-          </div>
-          <div class="mini">
-            <strong id="bestDay">-</strong>
-            <span>Highest weekday this week</span>
-          </div>
-        </div>
-      </div>
+      <div class="card panel"><div class="panel-title"><h3>Daily trend</h3><span class="muted" id="dailyLabel"></span></div><div id="dailyChart" class="chart daily-chart"></div></div>
+      <div class="card panel"><div class="panel-title"><h3>Weekly trend</h3><span class="muted">Last 8 weeks</span></div><div id="weeklyChart" class="chart"></div></div>
+      <div class="card panel wide"><div class="panel-title"><h3>Summary</h3><span class="muted">Totals only, weekdays only</span></div><div class="summary-strip"><div class="mini"><strong id="selectedTotal">0</strong><span>Selected day</span></div><div class="mini"><strong id="weekTotal">0</strong><span>This week</span></div><div class="mini"><strong id="weekAverage">0</strong><span>Daily average this week</span></div><div class="mini"><strong id="bestDay">-</strong><span>Highest weekday this week</span></div></div></div>
     </section>
   </main>
 
   <script>
     const FIREBASE_DB_URL = "https://office-attendance-bfc67-default-rtdb.firebaseio.com";
-
     const datePicker = document.getElementById("datePicker");
     const todayCount = document.getElementById("todayCount");
     const statusPill = document.getElementById("statusPill");
     const dailyChart = document.getElementById("dailyChart");
     const weeklyChart = document.getElementById("weeklyChart");
     const dailyLabel = document.getElementById("dailyLabel");
-
     const selectedTotal = document.getElementById("selectedTotal");
     const weekTotal = document.getElementById("weekTotal");
     const weekAverage = document.getElementById("weekAverage");
     const bestDay = document.getElementById("bestDay");
+    let allAttendance = {};
+    let attendanceStream = null;
 
-    let allAttendance = null;
+    function localDateString(date = new Date()) { const offset = date.getTimezoneOffset(); const local = new Date(date.getTime() - offset * 60000); return local.toISOString().slice(0, 10); }
+    function addDays(date, days) { const copy = new Date(date); copy.setDate(copy.getDate() + days); return copy; }
+    function startOfWeek(date) { const copy = new Date(date); const day = copy.getDay(); const mondayOffset = day === 0 ? -6 : 1 - day; copy.setDate(copy.getDate() + mondayOffset); copy.setHours(0, 0, 0, 0); return copy; }
+    function isWeekday(date) { const day = date.getDay(); return day >= 1 && day <= 5; }
+    async function fetchAllAttendance() { const response = await fetch(`${FIREBASE_DB_URL}/attendance.json`); if (!response.ok) throw new Error(`Firebase read failed: ${response.status}`); allAttendance = await response.json() || {}; }
+    function setStatus(text, color, background) { statusPill.textContent = text; statusPill.style.color = color; statusPill.style.background = background; }
 
-    function localDateString(date = new Date()) {
-      const offset = date.getTimezoneOffset();
-      const local = new Date(date.getTime() - offset * 60000);
-      return local.toISOString().slice(0, 10);
+    function startLiveAttendanceStream() {
+      if (attendanceStream) attendanceStream.close();
+      attendanceStream = new EventSource(`${FIREBASE_DB_URL}/attendance.json`);
+      attendanceStream.addEventListener("put", event => { const message = JSON.parse(event.data); if (message.path === "/") { allAttendance = message.data || {}; } else { applyRealtimePatch(message.path, message.data); } renderDashboardFromCache(); setStatus("Live", "#16a34a", "#dcfce7"); });
+      attendanceStream.addEventListener("patch", event => { const message = JSON.parse(event.data); applyRealtimePatch(message.path, message.data); renderDashboardFromCache(); setStatus("Live", "#16a34a", "#dcfce7"); });
+      attendanceStream.onerror = () => setStatus("Reconnecting...", "#d97706", "#fef3c7");
     }
 
-    function addDays(date, days) {
-      const copy = new Date(date);
-      copy.setDate(copy.getDate() + days);
-      return copy;
-    }
-
-    function startOfWeek(date) {
-      const copy = new Date(date);
-      const day = copy.getDay();
-      const mondayOffset = day === 0 ? -6 : 1 - day;
-      copy.setDate(copy.getDate() + mondayOffset);
-      copy.setHours(0, 0, 0, 0);
-      return copy;
-    }
-
-    function isWeekday(date) {
-      const day = date.getDay();
-      return day >= 1 && day <= 5;
-    }
-
-    async function fetchAllAttendance() {
-      const response = await fetch(`${FIREBASE_DB_URL}/attendance.json`);
-      if (!response.ok) throw new Error(`Firebase read failed: ${response.status}`);
-      allAttendance = await response.json() || {};
+    function applyRealtimePatch(path, data) {
+      const parts = path.split("/").filter(Boolean);
+      if (!parts.length) { allAttendance = data || {}; return; }
+      let target = allAttendance;
+      for (let i = 0; i < parts.length - 1; i++) { const key = parts[i]; if (!target[key] || typeof target[key] !== "object") target[key] = {}; target = target[key]; }
+      const lastKey = parts[parts.length - 1];
+      if (data === null) delete target[lastKey]; else target[lastKey] = data;
     }
 
     function getLocationCounts(dateText) {
       const dayData = allAttendance?.[dateText] || {};
       const counts = { Home: 0, GC: 0, BNE: 0 };
-
-      Object.values(dayData).forEach(item => {
-        if (!item) return;
-
-        const location = item.workingFrom || (item.inOffice ? "GC" : "Home");
-
-        if (location === "Home") counts.Home += 1;
-        if (location === "GC") counts.GC += 1;
-        if (location === "BNE") counts.BNE += 1;
-      });
-
+      Object.values(dayData).forEach(item => { if (!item) return; const location = item.workingFrom || (item.inOffice ? "GC" : "Home"); if (location === "Home") counts.Home += 1; if (location === "GC") counts.GC += 1; if (location === "BNE") counts.BNE += 1; });
       return counts;
     }
-
-    function getTotal(counts) {
-      return counts.Home + counts.GC + counts.BNE;
-    }
+    function getTotal(counts) { return counts.Home + counts.GC + counts.BNE; }
 
     function renderLineChart(container, data, xKey, seriesKeys, rotateLabels = false) {
-      const width = 820;
-      const height = 330;
-      const padding = {
-        left: 44,
-        right: 24,
-        top: 20,
-        bottom: rotateLabels ? 104 : 54
-      };
-    
+      const width = 920;
+      const height = 440;
+      const padding = { left: 58, right: 28, top: 24, bottom: rotateLabels ? 158 : 86 };
       const plotW = width - padding.left - padding.right;
       const plotH = height - padding.top - padding.bottom;
-    
       const maxDataValue = Math.max(1, ...data.flatMap(item => seriesKeys.map(key => item[key])));
-      const maxValue = Math.ceil(maxDataValue);
+      const maxValue = Math.max(3, Math.ceil(maxDataValue));
       const yTicks = Array.from({ length: maxValue + 1 }, (_, i) => i);
-    
-      const x = index => data.length === 1
-        ? padding.left + plotW / 2
-        : padding.left + (index / (data.length - 1)) * plotW;
-    
+      const x = index => data.length === 1 ? padding.left + plotW / 2 : padding.left + (index / (data.length - 1)) * plotW;
       const y = value => padding.top + plotH - (value / maxValue) * plotH;
-    
-      function linePath(key) {
-        return data.map((item, index) => `${index === 0 ? "M" : "L"} ${x(index)} ${y(item[key])}`).join(" ");
-      }
-    
-      function areaPath(key) {
-        if (!data.length) return "";
-        const topLine = data.map((item, index) => `${index === 0 ? "M" : "L"} ${x(index)} ${y(item[key])}`).join(" ");
-        return `${topLine} L ${x(data.length - 1)} ${y(0)} L ${x(0)} ${y(0)} Z`;
-      }
-    
-      function pointsFor(key, className) {
-        return data.map((item, index) => `
-          <circle class="${className}" cx="${x(index)}" cy="${y(item[key])}" r="10.4">
-            <title>${item.fullLabel || item[xKey]} - ${key}: ${item[key]}</title>
-          </circle>
-        `).join("");
-      }
-    
-      function xLabels() {
-        return data.map((item, index) => {
-          if (rotateLabels) {
-            return `
-              <text
-                class="axis-label axis-label-large"
-                x="${x(index)}"
-                y="${height - 12}"
-                text-anchor="end"
-                transform="rotate(-90 ${x(index)} ${height - 12})"
-              >${item[xKey]}</text>
-            `;
-          }
-    
-          return `
-            <text
-              class="axis-label axis-label-large"
-              x="${x(index)}"
-              y="${height - 16}"
-              text-anchor="middle"
-            >${item[xKey]}</text>
-          `;
-        }).join("");
-      }
-    
-      container.innerHTML = `
-        <div class="chart-legend">
-          <span class="legend-item"><span class="legend-dot dot-home"></span>Home</span>
-          <span class="legend-item"><span class="legend-dot dot-gc"></span>GC</span>
-          <span class="legend-item"><span class="legend-dot dot-bne"></span>BNE</span>
-        </div>
-    
-        <svg class="line-chart" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">
-          <defs>
-            <linearGradient id="gradHome" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#64748b"></stop>
-              <stop offset="100%" stop-color="#64748b" stop-opacity="0"></stop>
-            </linearGradient>
-            <linearGradient id="gradGc" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#5b8cff"></stop>
-              <stop offset="100%" stop-color="#5b8cff" stop-opacity="0"></stop>
-            </linearGradient>
-            <linearGradient id="gradBne" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#22c55e"></stop>
-              <stop offset="100%" stop-color="#22c55e" stop-opacity="0"></stop>
-            </linearGradient>
-          </defs>
-    
-          ${yTicks.map(tick => `
-            <line class="grid-line" x1="${padding.left}" y1="${y(tick)}" x2="${width - padding.right}" y2="${y(tick)}"></line>
-            <text class="axis-label" x="8" y="${y(tick) + 4}">${tick}</text>
-          `).join("")}
-    
-          <path class="area-home" d="${areaPath("Home")}"></path>
-          <path class="area-gc" d="${areaPath("GC")}"></path>
-          <path class="area-bne" d="${areaPath("BNE")}"></path>
-    
-          <path class="line-home" d="${linePath("Home")}"></path>
-          <path class="line-gc" d="${linePath("GC")}"></path>
-          <path class="line-bne" d="${linePath("BNE")}"></path>
-    
-          ${pointsFor("Home", "point-home")}
-          ${pointsFor("GC", "point-gc")}
-          ${pointsFor("BNE", "point-bne")}
-    
-          ${xLabels()}
-        </svg>
-      `;
+      function linePath(key) { return data.map((item, index) => `${index === 0 ? "M" : "L"} ${x(index)} ${y(item[key])}`).join(" "); }
+      function areaPath(key) { if (!data.length) return ""; const topLine = data.map((item, index) => `${index === 0 ? "M" : "L"} ${x(index)} ${y(item[key])}`).join(" "); return `${topLine} L ${x(data.length - 1)} ${y(0)} L ${x(0)} ${y(0)} Z`; }
+      function pointsFor(key, className) { return data.map((item, index) => `<circle class="${className}" cx="${x(index)}" cy="${y(item[key])}" r="10"><title>${item.fullLabel || item[xKey]} - ${key}: ${item[key]}</title></circle>`).join(""); }
+      function xLabels() { return data.map((item, index) => rotateLabels ? `<text class="x-label" x="${x(index)}" y="${height - 96}" text-anchor="end" transform="rotate(-90 ${x(index)} ${height - 96})">${item[xKey]}</text>` : `<text class="x-label" x="${x(index)}" y="${height - 34}" text-anchor="middle">${item[xKey]}</text>`).join(""); }
+      container.innerHTML = `<div class="chart-legend"><span class="legend-item"><span class="legend-dot dot-home"></span>Home</span><span class="legend-item"><span class="legend-dot dot-gc"></span>GC</span><span class="legend-item"><span class="legend-dot dot-bne"></span>BNE</span></div><svg class="line-chart" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet"><defs><linearGradient id="gradHome" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#64748b"></stop><stop offset="100%" stop-color="#64748b" stop-opacity="0"></stop></linearGradient><linearGradient id="gradGc" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5b7cfa"></stop><stop offset="100%" stop-color="#5b7cfa" stop-opacity="0"></stop></linearGradient><linearGradient id="gradBne" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#05b86b"></stop><stop offset="100%" stop-color="#05b86b" stop-opacity="0"></stop></linearGradient></defs>${yTicks.map(tick => `<line class="${tick === 0 ? "zero-line" : "grid-line"}" x1="${padding.left}" y1="${y(tick)}" x2="${width - padding.right}" y2="${y(tick)}"></line><text class="axis-label" x="16" y="${y(tick) + 7}">${tick}</text>`).join("")}<path class="area-home" d="${areaPath("Home")}"></path><path class="area-gc" d="${areaPath("GC")}"></path><path class="area-bne" d="${areaPath("BNE")}"></path><path class="line-home" d="${linePath("Home")}"></path><path class="line-gc" d="${linePath("GC")}"></path><path class="line-bne" d="${linePath("BNE")}"></path>${pointsFor("Home", "point-home")}${pointsFor("GC", "point-gc")}${pointsFor("BNE", "point-bne")}${xLabels()}</svg>`;
     }
-    async function loadDashboard() {
+
+    function renderDashboardFromCache() {
       const selectedDate = datePicker.value || localDateString();
       const selectedBase = new Date(selectedDate + "T00:00:00");
       const weekStart = startOfWeek(selectedBase);
-
-      statusPill.textContent = "Loading...";
-      statusPill.style.color = "#1d4ed8";
-      statusPill.style.background = "#dbeafe";
-
-      try {
-        await fetchAllAttendance();
-
-        const dailyData = [];
-
-        for (let i = 0; i < 7; i++) {
-          const date = addDays(weekStart, i);
-          if (!isWeekday(date)) continue;
-
-          const key = localDateString(date);
-          const counts = getLocationCounts(key);
-
-          dailyData.push({
-            label: date.toLocaleDateString("en-AU", { weekday: "short" }),
-            key,
-            Home: counts.Home,
-            GC: counts.GC,
-            BNE: counts.BNE
-          });
-        }
-
-        const weeklyData = [];
-
-        for (let i = 7; i >= 0; i--) {
-          const week = addDays(weekStart, -7 * i);
-          const totals = { Home: 0, GC: 0, BNE: 0 };
-
-          for (let d = 0; d < 7; d++) {
-            const date = addDays(week, d);
-            if (!isWeekday(date)) continue;
-
-            const counts = getLocationCounts(localDateString(date));
-            totals.Home += counts.Home;
-            totals.GC += counts.GC;
-            totals.BNE += counts.BNE;
-          }
-
-          weeklyData.push({
-            label: weekRangeLabel(week),
-            fullLabel: `Week ${getWeekNumber(week)}: ${weekRangeLabel(week)}`,
-            Home: totals.Home,
-            GC: totals.GC,
-            BNE: totals.BNE
-          });
-        }
-
-        const selectedCounts = getLocationCounts(selectedDate);
-        const selectedDayCount = getTotal(selectedCounts);
-
-        const currentWeekTotal = dailyData.reduce((sum, item) => {
-          return sum + item.Home + item.GC + item.BNE;
-        }, 0);
-
-        const highest = dailyData.reduce((best, item) => {
-          const itemTotal = item.Home + item.GC + item.BNE;
-          const bestTotal = best.Home + best.GC + best.BNE;
-          return itemTotal > bestTotal ? item : best;
-        }, dailyData[0]);
-
-        todayCount.textContent = selectedDayCount;
-        selectedTotal.textContent = selectedDayCount;
-        weekTotal.textContent = currentWeekTotal;
-        weekAverage.textContent = (currentWeekTotal / 5).toFixed(1);
-        bestDay.textContent = `${highest.label} (${highest.Home + highest.GC + highest.BNE})`;
-
-        dailyLabel.textContent = `Week of ${weekStart.toLocaleDateString("en-AU", { day: "numeric", month: "short" })}`;
-
-        renderLineChart(dailyChart, dailyData, "label", ["Home", "GC", "BNE"], false);
-        renderLineChart(weeklyChart, weeklyData, "label", ["Home", "GC", "BNE"], true);
-
-        statusPill.textContent = "Connected";
-        statusPill.style.color = "#16a34a";
-        statusPill.style.background = "#dcfce7";
-      } catch (error) {
-        console.error(error);
-
-        dailyChart.innerHTML = `<div class="empty">Could not load Firebase data.</div>`;
-        weeklyChart.innerHTML = `<div class="empty">Could not load Firebase data.</div>`;
-
-        statusPill.textContent = "Error";
-        statusPill.style.color = "#dc2626";
-        statusPill.style.background = "#fee2e2";
-      }
+      const dailyData = [];
+      for (let i = 0; i < 7; i++) { const date = addDays(weekStart, i); if (!isWeekday(date)) continue; const key = localDateString(date); const counts = getLocationCounts(key); dailyData.push({ label: date.toLocaleDateString("en-AU", { weekday: "short" }), key, Home: counts.Home, GC: counts.GC, BNE: counts.BNE }); }
+      const weeklyData = [];
+      for (let i = 7; i >= 0; i--) { const week = addDays(weekStart, -7 * i); const totals = { Home: 0, GC: 0, BNE: 0 }; for (let d = 0; d < 7; d++) { const date = addDays(week, d); if (!isWeekday(date)) continue; const counts = getLocationCounts(localDateString(date)); totals.Home += counts.Home; totals.GC += counts.GC; totals.BNE += counts.BNE; } weeklyData.push({ label: weekRangeLabel(week), fullLabel: `Week ${getWeekNumber(week)}: ${weekRangeLabel(week)}`, Home: totals.Home, GC: totals.GC, BNE: totals.BNE }); }
+      const selectedCounts = getLocationCounts(selectedDate);
+      const selectedDayCount = getTotal(selectedCounts);
+      const currentWeekTotal = dailyData.reduce((sum, item) => sum + item.Home + item.GC + item.BNE, 0);
+      const highest = dailyData.reduce((best, item) => { const itemTotal = item.Home + item.GC + item.BNE; const bestTotal = best.Home + best.GC + best.BNE; return itemTotal > bestTotal ? item : best; }, dailyData[0]);
+      todayCount.textContent = selectedDayCount;
+      selectedTotal.textContent = selectedDayCount;
+      weekTotal.textContent = currentWeekTotal;
+      weekAverage.textContent = (currentWeekTotal / 5).toFixed(1);
+      bestDay.textContent = `${highest.label} (${highest.Home + highest.GC + highest.BNE})`;
+      dailyLabel.textContent = `Week of ${weekStart.toLocaleDateString("en-AU", { day: "numeric", month: "short" })}`;
+      renderLineChart(dailyChart, dailyData, "label", ["Home", "GC", "BNE"], false);
+      renderLineChart(weeklyChart, weeklyData, "label", ["Home", "GC", "BNE"], true);
     }
 
-    function getWeekNumber(date) {
-      const target = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-      const dayNum = target.getUTCDay() || 7;
-      target.setUTCDate(target.getUTCDate() + 4 - dayNum);
-      const yearStart = new Date(Date.UTC(target.getUTCFullYear(), 0, 1));
-      return Math.ceil((((target - yearStart) / 86400000) + 1) / 7);
-    }
-
-    function weekRangeLabel(weekStart) {
-      const weekEnd = addDays(weekStart, 4);
-
-      const startText = weekStart.toLocaleDateString("en-AU", {
-        day: "numeric",
-        month: "short"
-      });
-
-      const endText = weekEnd.toLocaleDateString("en-AU", {
-        day: "numeric",
-        month: "short"
-      });
-
-      return `${startText}–${endText}`;
-    }
-
-    function setToday() {
-      datePicker.value = localDateString();
-      loadDashboard();
-    }
-
+    async function loadDashboard() { setStatus("Loading...", "#1d4ed8", "#dbeafe"); try { await fetchAllAttendance(); renderDashboardFromCache(); setStatus("Live", "#16a34a", "#dcfce7"); if (!attendanceStream) startLiveAttendanceStream(); } catch (error) { console.error(error); dailyChart.innerHTML = `<div class="empty">Could not load Firebase data.</div>`; weeklyChart.innerHTML = `<div class="empty">Could not load Firebase data.</div>`; setStatus("Error", "#dc2626", "#fee2e2"); } }
+    function getWeekNumber(date) { const target = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())); const dayNum = target.getUTCDay() || 7; target.setUTCDate(target.getUTCDate() + 4 - dayNum); const yearStart = new Date(Date.UTC(target.getUTCFullYear(), 0, 1)); return Math.ceil((((target - yearStart) / 86400000) + 1) / 7); }
+    function weekRangeLabel(weekStart) { const weekEnd = addDays(weekStart, 4); const startText = weekStart.toLocaleDateString("en-AU", { day: "numeric", month: "short" }); const endText = weekEnd.toLocaleDateString("en-AU", { day: "numeric", month: "short" }); return `${startText}–${endText}`; }
+    function setToday() { datePicker.value = localDateString(); renderDashboardFromCache(); }
+    datePicker.addEventListener("change", renderDashboardFromCache);
+    window.addEventListener("beforeunload", () => { if (attendanceStream) attendanceStream.close(); });
     datePicker.value = localDateString();
     loadDashboard();
   </script>
