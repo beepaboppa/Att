@@ -218,6 +218,10 @@
     window.addEventListener("beforeunload", () => { if (attendanceStream) attendanceStream.close(); });
     datePicker.value = localDateString();
     loadDashboard();
+    
+    setInterval(() => {
+      loadDashboard();
+    }, 5000);
   </script>
 </body>
 </html>
